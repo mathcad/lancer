@@ -1,0 +1,42 @@
+server:
+  port: ${serverPort:8080}
+
+# region Config registered to Spring Boot Starter Context
+spring:
+  profiles:
+    active: dev
+  application:
+    name: BONADE-MIGRATOR-ADMIN
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 25MB
+      location: ${java.io.tmpdir}
+
+# endregion
+
+spin:
+  datasource:
+    hikari:
+      primaryDataSource: mainPool
+      openSessionInView: true
+      ds:
+        mainPool:
+          driverClassName: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://192.168.40.149:3306/ah_uaac?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true&serverTimezone=PRC&useSSL=false
+          username: root
+          password: admin
+          maximumPoolSize: 15
+          minimumIdle: 5
+  data:
+    pk:
+      providerType: org.spin.data.pk.generator.provider.ExternalMachineIdProvider
+    sql:
+      namingStrategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+      resolver: org.spin.data.sql.resolver.BeetlResolver
+      sqlLoader: org.spin.data.sql.loader.ArchiveMdLoader
+      sqlUri: /mapper
+
+
+cluster-id: xxxx
+instance-id: xxxx

@@ -1,0 +1,75 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        maven { url "http://60.169.170.69:8081/repository/mathcat/" }
+        mavenCentral()
+    }
+}
+
+plugins {
+    id 'org.springframework.boot' version '2.3.1.RELEASE'
+    id "com.google.cloud.tools.jib" version "2.4.0"
+}
+
+description 'lancer管理控制台'
+def artifactId = 'lancer-portal'
+
+test {
+    useJUnitPlatform()
+}
+
+jib {
+    from {
+        image = '192.168.40.150:8086/library/adoptopenjdk:11.0.7-alpine-min'
+    }
+    to {
+        image = "192.168.40.150:8086/library/$artifactId"
+        auth {
+            username = 'robot$publisher'
+            password = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1OTE1ODc4ODMsImlhdCI6MTU4ODk5NTg4MywiaXNzIjoiaGFyYm9yLXRva2VuLWRlZmF1bHRJc3N1ZXIiLCJpZCI6MywicGlkIjoxLCJhY2Nlc3MiOlt7IlJlc291cmNlIjoiL3Byb2plY3QvMS9yZXBvc2l0b3J5IiwiQWN0aW9uIjoicHVzaCIsIkVmZmVjdCI6IiJ9XX0.e4SUnqPtP5Zw23VkuVlC6aa31HqYaWpnDZasgtOqkOHDlFYEXTAAUjDejTxf78Bhf-mIvxRHqU4jTVSgKHdVzcJc0ePy47MgZPSzL7dgPXCCbjTEC5t_6NWqxqNasYFj0A1_ilrkQUfrJXestckp5dbjQSmYvxpDPDNcPT-r3NX0hxa4egs3wfh78HYgAj6qdNgHiBgIdAPRd0R9cUHFcoL02AgGNB7ecZc98a7sVS7Exi9_Uic-WlsOo-kl3yO6mD2SMfuNsAGeGLadeejGTZ7AO6W3nxkHN3jjVKuPqH76ZCGQFRgrBgka13hkq0N3CgnGE-rCCQkwBZBcAHYqC_28D2vjY2mMmalXFtzYrfzbrQ17Kp50st3wJiKtefnBMlAstJkVuEtk861rIEaUzvOh5c02D7OfWFh65UlEZqPE7BXDS1CxHt2PhmQFN-lb1efmGfVLzZCASqIKXp5sbbAzEuUIJi7IVEvHMFGCd0DUk5y9_LZC809889--oESLz7Ldn_aAWUa04-a97GD4DtVz0j10jZwr4SnvZR-zjttUNFDZqR9oLrPaKapHYK3SPpxjf1PE1lucYJyT4uGPaVbiICntI5F3oqr8Dxvv6EN-yXV1QnSutMdVDkUMeJ0iskD5Dn6GB-v681xR56deE9NUOoZ82_keD7X4ZXJwsxE'
+        }
+        tags = [version] as Set<String>
+        credHelper = 'osxkeychain'
+    }
+    container {
+        jvmFlags = ['-Djava.security.egd=file:/dev/./urandom', '-Duser.timezone=GMT+08', '-Dfile.encoding=UTF-8']
+        mainClass = 'com.bonade.uaac.UaacApplication'
+        ports = ['9112']
+    }
+    allowInsecureRegistries = true
+}
+
+bootJar {
+    archiveBaseName.set("$artifactId")
+    archiveVersion.set("$project.version")
+}
+
+//processResources {
+//    filteringCharset = 'UTF-8'
+//    filter ReplaceTokens, tokens: [projectVersion: version]
+//    filter ReplaceTokens, tokens: [commonStarterVersion: commonStarterVersion]
+//    filter ReplaceTokens, tokens: [jobExecutorVersion: jobExecutorVersion]
+//}
+
+dependencies {
+    // additional for Intellij
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.6.2")
+    testRuntimeOnly("org.junit.vintage:junit-vintage-engine:${junitJupiterVersion}")
+
+    // test runtime
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
+    testImplementation(group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion) {
+        exclude(module: 'commons-logging')
+        exclude(module: 'junit')
+    }
+
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: springBootVersion
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: springBootVersion
+
+    implementation group: 'org.springframework', name: 'spring-jdbc', version: springVersion
+
+    implementation group: 'com.zaxxer', name: 'HikariCP', version: hikariVersion
+    implementation group: 'mysql', name: 'mysql-connector-java', version: mysqlVersion
+}
+
